@@ -1,15 +1,16 @@
 {
-  "name": "Blockchain",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "Orhan Örs <orsorhan1@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "sha256": "^0.2.0"
-  }
+	"name": "Blockchain",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node ./src/test"
+	},
+	"keywords": [],
+	"author": "Orhan Örs <orsorhan1@gmail.com>",
+	"license": "MIT",
+	"dependencies": {
+		"sha256": "^0.2.0"
+	}
 }
