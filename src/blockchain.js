@@ -4,7 +4,7 @@ function Blockchain() {
 	this.chain = [];
 	this.pendingTransactions = [];
 
-	this.createNewBlock(100, "0000", "0000");
+	this.createNewBlock(100, "0", "0");
 }
 
 Blockchain.prototype.createNewBlock = function (
@@ -77,6 +77,7 @@ Blockchain.prototype.proofOfWork = function (
 		hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
 		console.log(hash);
 	}
+	console.log(nonce);
 	return nonce;
 };
 
