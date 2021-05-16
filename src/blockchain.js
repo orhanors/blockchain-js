@@ -4,7 +4,7 @@ function Blockchain() {
 	this.chain = [];
 	this.pendingTransactions = [];
 
-	this.createNewBlock(100, "0", "0");
+	this.createNewBlock(100, "0", "0"); //genesis block
 }
 
 Blockchain.prototype.createNewBlock = function (
