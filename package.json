@@ -6,12 +6,18 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "node ./src/test",
-		"dev": "nodemon ./src/api"
+		"dev": "nodemon ./src/networkNode",
+		"node_1": "nodemon ./src/networkNode 3001 http://localhost:3001",
+		"node_2": "nodemon ./src/networkNode 3002 http://localhost:3002",
+		"node_3": "nodemon ./src/networkNode 3003 http://localhost:3003",
+		"node_4": "nodemon ./src/networkNode 3004 http://localhost:3004",
+		"node_5": "nodemon ./src/networkNode 3005 http://localhost:3005"
 	},
 	"keywords": [],
 	"author": "Orhan Örs <orsorhan1@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
+		"axios": "^0.21.1",
 		"express": "^4.17.1",
 		"sha256": "^0.2.0",
 		"uuid": "^8.3.2"
