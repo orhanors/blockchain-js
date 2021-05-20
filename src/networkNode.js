@@ -207,6 +207,60 @@ server.post("/register-nodes-bulk", (req, res) => {
 	res.json({ note: "Bulk registration successful" });
 });
 
+server.get("/consensus", (req, res) => {
+	const requestPromises = [];
+	//Get all blockchain info from each node
+	bitcoin.networkNodes.forEach((networkNodeUrl) => {
+		const chainRequestOptions = {
+			url: networkNodeUrl + "/blockchain",
+			method: "GET",
+		};
+		requestPromises.push(axios(chainRequestOptions));
+	});
+
+	Promise.all(requestPromises).then((blockchains) => {
+		//see if there is a blockchain inside of the other
+		//node that is longer than the copy of the blockchain hosted on the current node.
+
+		const currentChainLength = bitcoin.chain.length;
+		let maxChainLength = currentChainLength;
+		let newLongestChain = null;
+		let newPendingTransactions = null;
+		blockchains.forEach((blockchain) => {
+			if (blockchain.chain.length > maxChainLength) {
+				maxChainLength = blockchain.chain.length;
+				newLongestChain = blockchain.chain;
+				newPendingTransactions = blockchain.pendingTransactions;
+			}
+		});
+
+		if (
+			!newLongestChain ||
+			(newLongestChain && !bitcoin.chainIsValid(newLongestChain))
+		) {
+			// if there is no newLongestChain
+			// meaning, then the current chain is the longest. Alternatively, if there is a new longest chain
+			// but that new chain is not valid, then in these two cases we don't want to replace the
+			// blockchain that's hosted on the current node. So we're going to send back the note that says
+			// 'Current chain has not been replaced'.
+			res.json({
+				note: "Current chain has not been replaced.",
+				chain: bitcoin.chain,
+			});
+		} else {
+			// if there is a newLongestChain and that chain is valid, now is when we want to
+			// replace the blockchain that's hosted on the current node with the longest chain in the
+			// network.
+			bitcoin.chain = newLongestChain;
+			bitcoin.pendingTransactions = newPendingTransactions;
+			res.json({
+				note: "This chain has been replaced.",
+				chain: bitcoin.chain,
+			});
+		}
+	});
+});
+
 server.listen(port, () => {
 	console.log("Server is running on port: ", port);
 });
