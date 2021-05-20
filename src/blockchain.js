@@ -89,13 +89,59 @@ Blockchain.prototype.proofOfWork = function (
 	let nonce = 0;
 	let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
 
-	while (hash.substr(0, 4) !== "000") {
+	while (hash.substr(0, 4) !== "0000") {
 		nonce++;
 		hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
 		console.log(hash);
 	}
 	console.log(nonce);
 	return nonce;
+};
+
+/**
+ * CONSENSUS ALGORITHM (longest chain rule)
+ * @param {*} blockchain
+ * @returns chain is valid or not
+ */
+Blockchain.prototype.isChainValid = function (blockchain) {
+	let validChain = true;
+
+	for (let i = 1; i < blockchain.length; i++) {
+		const currentBlock = blockchain[i];
+		const previousBlock = blockchain[i - 1];
+
+		//Check if the hash is valid
+		const blockHash = this.hashBlock(
+			previousBlock["hash"],
+			{
+				transactions: currentBlock["transactions"],
+				index: currentBlock["index"],
+			},
+			currentBlock["nonce"]
+		);
+
+		if (blockHash.substring(0, 4) !== "0000") validChain = false;
+
+		//Check if the previous hash is valid
+		if (currentBlock["previousBlockHash"] !== previousBlock["hash"])
+			validChain = false;
+
+		//Check if the genesis block is valid
+		const genesisBlock = blockchain[0];
+		const correctNonce = genesisBlock["nonce"] === 100;
+		const correctPrevBlockHash = genesisBlock["previousBlockHash"] === "0";
+		const correctHash = genesisBlock["hash"] === "0";
+		const correctTransactions = genesisBlock["transactions"].length === 0;
+
+		if (
+			!correctNonce ||
+			!correctPrevBlockHash ||
+			!correctHash ||
+			!correctTransactions
+		)
+			validChain = false;
+	}
+	return validChain;
 };
 
 module.exports = Blockchain;

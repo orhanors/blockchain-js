@@ -83,7 +83,7 @@ server.get("/mine", (req, res) => {
 			data: { newBlock },
 		};
 
-		newBlockCreationPromises(axios(miningRequestOptions));
+		newBlockCreationPromises.push(axios(miningRequestOptions));
 	});
 
 	Promise.all(newBlockCreationPromises)
@@ -106,26 +106,32 @@ server.get("/mine", (req, res) => {
 				note: "New block mined and broadcast successfully",
 				block: newBlock,
 			});
+		})
+		.catch((e) => {
+			console.log("Mining error: ", e);
+			res.json({ note: "Something went wrong :( ", error: e });
 		});
 });
 
-//validate new block, if it's valid add to chain
+//validate new block, if it's valid add to chain..
 server.post("/receive-new-block", (req, res) => {
 	const { newBlock } = req.body;
 
 	const lastBlock = bitcoin.getLastBlock();
-	const hasCorrectHash = lastblock.hash === newBlock.previousBlockHash;
-	const hasCorrectIndex = lastBlock.index + 1 === lastBlock.index;
-
+	const hasCorrectHash = lastBlock.hash === newBlock.previousBlockHash;
+	const hasCorrectIndex = lastBlock["index"] + 1 === newBlock["index"];
+	console.log("hasCorrectIndex: ", hasCorrectIndex);
+	console.log("hasCorrectHash: ", hasCorrectHash);
 	if (hasCorrectHash && hasCorrectIndex) {
 		bitcoin.chain.push(newBlock);
 		bitcoin.pendingTransactions = [];
-
+		console.log("new block created");
 		res.json({
 			note: "New block received and accepted",
 			newBlock,
 		});
 	} else {
+		console.error("new block rejected");
 		res.json({
 			note: "New block rejected",
 			newBlock,
