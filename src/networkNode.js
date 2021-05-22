@@ -207,6 +207,9 @@ server.post("/register-nodes-bulk", (req, res) => {
 	res.json({ note: "Bulk registration successful" });
 });
 
+/**
+ * Consensus algorithm that uses the Longest Chain Rule
+ */
 server.get("/consensus", (req, res) => {
 	const requestPromises = [];
 	//Get all blockchain info from each node
@@ -221,22 +224,23 @@ server.get("/consensus", (req, res) => {
 	Promise.all(requestPromises).then((blockchains) => {
 		//see if there is a blockchain inside of the other
 		//node that is longer than the copy of the blockchain hosted on the current node.
-
+		console.log("blockchains: ", blockchains);
 		const currentChainLength = bitcoin.chain.length;
 		let maxChainLength = currentChainLength;
 		let newLongestChain = null;
 		let newPendingTransactions = null;
 		blockchains.forEach((blockchain) => {
-			if (blockchain.chain.length > maxChainLength) {
-				maxChainLength = blockchain.chain.length;
-				newLongestChain = blockchain.chain;
-				newPendingTransactions = blockchain.pendingTransactions;
+			let chain = blockchain.data.chain;
+			if (chain.length > maxChainLength) {
+				maxChainLength = chain.length;
+				newLongestChain = chain;
+				newPendingTransactions = blockchain.data.pendingTransactions;
 			}
 		});
 
 		if (
 			!newLongestChain ||
-			(newLongestChain && !bitcoin.chainIsValid(newLongestChain))
+			(newLongestChain && !bitcoin.isChainValid(newLongestChain))
 		) {
 			// if there is no newLongestChain
 			// meaning, then the current chain is the longest. Alternatively, if there is a new longest chain
